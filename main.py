@@ -2,6 +2,7 @@ import pygame
 from snake import Snake
 from intro_setup import IntroSetup
 from end_state import EndState
+from key_bindings import get_player_keybinding
 
 
 # Globals
@@ -40,7 +41,6 @@ def main():
     fps_clock = pygame.time.Clock()
 
     # Game setup
-    s1 = Snake("Phillip", (255, 0, 0), [20, 5], GAME_SETUP)
     intro_menu = IntroSetup(GAME_SETUP)
     end_state = None
 
@@ -87,9 +87,12 @@ def main():
             if not snakes:
                 for i, param in enumerate(intro_menu.snake_parameters):
                     if param[0] == 1:  # Human player
-                        snakes.append(Snake("Player %d" % (i+1), param[1], get_snake_start(i), GAME_SETUP))
+                        k = get_player_keybinding(i)
+                        print(k)
+                        snakes.append(Snake("Player %d" % (i+1), param[1], get_snake_start(i), GAME_SETUP, k))
                     elif param[0] == 2:  # Human player
-                        snakes.append(Snake("Player %d" % (i+1), param[1], get_snake_start(i), GAME_SETUP))
+                        k = get_player_keybinding(param[0])
+                        snakes.append(Snake("Player %d" % (i+1), param[1], get_snake_start(i), GAME_SETUP, k))
 
                 # Add reference to other trails
                 for sn in snakes:

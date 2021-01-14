@@ -14,7 +14,7 @@ class Snake:
                 "Left": [-1, 0],
                 "Right": [1, 0]}
 
-    def __init__(self, name, colour, start_pos, setup):
+    def __init__(self, name, colour, start_pos, setup, key_map=None):
         # Initialise snake class
         # Inputs:
         # - id          id assigned to snake
@@ -23,6 +23,10 @@ class Snake:
 
         self.name = name
         self.colour = colour
+
+        if key_map is not None:
+            self.KEY_MAP = key_map
+
         self.block = setup["BlockSize"]
         self.initial_pos = start_pos
         self.trail = [start_pos]
@@ -31,9 +35,11 @@ class Snake:
         self.current_movement = self.MOVEMENT["Right"]
         self.alive = True
 
+        # Loaded with other snakes in the game
         self.other_snakes = []
 
     def check_snake_collision(self):
+        # Collision with another snake?
         for sn in self.other_snakes:
             if self.trail[-1] in sn.trail:
                 self.alive = False
@@ -75,21 +81,26 @@ class Snake:
 
     def render(self, screen):
         # Renders snake onto screen
+        # Inputs
+        # - screen          Surface to render snake on
         for p in self.trail:
             r = (p[0] * self.block[0], p[1] * self.block[1], self.block[0], self.block[1])
             screen.fill(self.colour, r)
 
     def reset(self):
+        # Reset the snake keeping the same parameters
         self.trail = [self.initial_pos]
         self.alive = True
 
     def _check_limits(self):
+        # Within map area
         if self.trail[-1][0] < 0 or self.trail[-1][0] > self.map_limits[0]:
             self.alive = False
         if self.trail[-1][1] < 0 or self.trail[-1][1] > self.map_limits[1]:
             self.alive = False
 
     def _trail_collision(self):
+        # self collision?
         if self.trail[-1] in self.trail[0:-1]:
             return True
         return False
