@@ -1,6 +1,7 @@
 import pygame
 from snake import Snake
 from intro_setup import IntroSetup
+from end_state import EndState
 
 
 # Globals
@@ -41,12 +42,19 @@ def main():
     # Game setup
     s1 = Snake("Phillip", (255, 0, 0), [20, 5], GAME_SETUP)
     intro_menu = IntroSetup(GAME_SETUP)
+    end_state = None
 
     snakes = []
 
     running = True
     game_state = 0
     initialisation_count = None
+
+    # --- DEBUG
+    game_state = GAME_STATE["Initialising"]
+    initialisation_count = 1
+    intro_menu.player_status = [1,1,1,1,None]
+    # --- DEBUG
 
     while running:
         event_list = pygame.event.get()
@@ -68,7 +76,8 @@ def main():
                 running = False
 
             if intro_menu.start_game:
-                game_state = 1
+                intro_menu.start_game = False
+                game_state = GAME_STATE["Initialising"]
 
         elif game_state == GAME_STATE["Initialising"]:
             if initialisation_count is None:
@@ -82,8 +91,15 @@ def main():
                     elif param[0] == 2:  # Human player
                         snakes.append(Snake("Player %d" % (i+1), param[1], get_snake_start(i), GAME_SETUP))
 
+                # Add reference to other trails
+                for sn in snakes:
+                    temp_lst = snakes.copy()
+                    temp_lst.remove(sn)
+                    sn.other_snakes = temp_lst
+
             # render snakes
             for sn in snakes:
+                sn.update(event_list, move_snake=False)
                 sn.render(screen)
 
             intro_menu.render_countdown(int(initialisation_count/GAME_SETUP["GameFPS"]), screen)
@@ -95,15 +111,39 @@ def main():
 
         elif game_state == GAME_STATE["Running"]:
             # Check for collisions
-
+            for sn in snakes:
+                sn.check_snake_collision()
 
             # Update for next state
             for sn in snakes:
                 sn.update(event_list)
                 sn.render(screen)
 
-        elif game_state == GAME_STATE["End"]:
-            pass
+            # Check for state change
+            num_alive = 0
+            for sn in snakes:
+                if sn.alive:
+                    num_alive += 1
+            if num_alive <= 1:
+                game_state = GAME_STATE["End"]
+
+        # Not an elif - possible for single snake to be about to run into wall/snake
+        if game_state == GAME_STATE["End"]:
+            if end_state is None:
+                end_state = EndState(snakes, GAME_SETUP)
+            end_state.update(event_list)
+            end_state.render(screen)
+
+            if end_state.exit:
+                running = False
+            elif end_state.rematch:
+                for sn in snakes:
+                    sn.reset()
+                game_state = GAME_STATE["Initialising"]
+                end_state = None
+            elif end_state.intro_menu:
+                game_state = GAME_STATE["Intro"]
+                end_state = None
 
         pygame.display.update()
         fps_clock.tick(GAME_SETUP["GameFPS"])

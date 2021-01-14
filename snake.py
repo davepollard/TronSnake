@@ -23,15 +23,22 @@ class Snake:
 
         self.name = name
         self.colour = colour
-        self.current_pos = start_pos
         self.block = setup["BlockSize"]
-        self.trail = [self.current_pos]
+        self.initial_pos = start_pos
+        self.trail = [start_pos]
         self.map_limits = [int(setup["ScreenSize"][i] / setup["BlockSize"][i]) for i in [0, 1]]
 
         self.current_movement = self.MOVEMENT["Right"]
         self.alive = True
 
-    def update(self, event_list):
+        self.other_snakes = []
+
+    def check_snake_collision(self):
+        for sn in self.other_snakes:
+            if self.trail[-1] in sn.trail:
+                self.alive = False
+
+    def update(self, event_list, move_snake=True):
         # Update movement
         # Inputs:
         # - event_key   event key list
@@ -59,10 +66,12 @@ class Snake:
                 if direction_changed:
                     break
 
-        new_pos = [self.trail[-1][0] + self.current_movement[0], self.trail[-1][1] + self.current_movement[1]]
-        self.trail.append(new_pos)
-        self._check_limits()
-        self.alive = not self._trail_collision()
+        if move_snake:
+            new_pos = [self.trail[-1][0] + self.current_movement[0], self.trail[-1][1] + self.current_movement[1]]
+            self.trail.append(new_pos)
+            self._check_limits()
+            if self._trail_collision():
+                self.alive = False
 
     def render(self, screen):
         # Renders snake onto screen
@@ -70,16 +79,17 @@ class Snake:
             r = (p[0] * self.block[0], p[1] * self.block[1], self.block[0], self.block[1])
             screen.fill(self.colour, r)
 
+    def reset(self):
+        self.trail = [self.initial_pos]
+        self.alive = True
+
     def _check_limits(self):
         if self.trail[-1][0] < 0 or self.trail[-1][0] > self.map_limits[0]:
             self.alive = False
-            print("dead x")
         if self.trail[-1][1] < 0 or self.trail[-1][1] > self.map_limits[1]:
             self.alive = False
-            print("dead y")
 
     def _trail_collision(self):
         if self.trail[-1] in self.trail[0:-1]:
-            print("own collision")
             return True
         return False
