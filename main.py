@@ -37,6 +37,9 @@ def init_window(screen_dim):
 
 
 def main():
+    """
+    Main loop for running game
+    """
     screen = init_window(GAME_SETUP["ScreenSize"])
     fps_clock = pygame.time.Clock()
 
@@ -51,11 +54,12 @@ def main():
     initialisation_count = None
 
     # --- DEBUG
+    """
     game_state = GAME_STATE["Initialising"]
     initialisation_count = 1
     intro_menu.player_status = [1,1,1,1,None]
     # --- DEBUG
-
+    """
     while running:
         event_list = pygame.event.get()
 
@@ -88,7 +92,6 @@ def main():
                 for i, param in enumerate(intro_menu.snake_parameters):
                     if param[0] == 1:  # Human player
                         k = get_player_keybinding(i)
-                        print(k)
                         snakes.append(Snake("Player %d" % (i+1), param[1], get_snake_start(i), GAME_SETUP, k))
                     elif param[0] == 2:  # Human player
                         k = get_player_keybinding(param[0])

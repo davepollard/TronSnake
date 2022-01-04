@@ -4,6 +4,7 @@ import pygame
 class IntroSetup:
     """ Initialise the game parameters """
 
+    # Mappings
     MENU_KEY_MAP = {"Up": pygame.K_UP,
                     "Down": pygame.K_DOWN,
                     "Select": pygame.K_RETURN,
@@ -11,8 +12,10 @@ class IntroSetup:
 
     MENU_LIST = {"Main": 0,
                  "NumPlayers": 1,
+                 "Help": 2,
                  "Unassigned": 999}
 
+    # Menu items
     MAIN_MENU = {"Number of Players": 0,
                  "Game setup": 1,
                  "Help": 2,
@@ -25,7 +28,12 @@ class IntroSetup:
                    "Player 4": 3,
                    "Back": 4}
 
-    # TODO - add in menu item for "Are you Pooja?"
+    HELP_MENU = {"Objective: Stay alive the longest": 0,
+                 "Player 1: Arrow keys": 1,
+                 "Player 2: IJKL": 2,
+                 "Player 3: FXCV": 3,
+                 "Player 4: WASD": 4,
+                 "Back": 5}
 
     def __init__(self, setup):
         self.screen_dim = setup["ScreenSize"]
@@ -46,6 +54,12 @@ class IntroSetup:
         self.exit = False
 
     def update(self, event_list):
+        """
+        Proceses key inputs, applies to self.current_selection
+
+        :param event_list: pygame input
+        :return:
+        """
         for event in event_list:
             if event.type == pygame.KEYDOWN:
                 if event.key == self.MENU_KEY_MAP["Up"]:
@@ -58,13 +72,32 @@ class IntroSetup:
                     self._apply_back()
         self.current_selection = self.current_selection % len(self._menu_items)
 
+        # lazy fix
+        if self.current_menu == self.MENU_LIST["Help"]:
+            self.current_selection = len(self._menu_items)-1
+
     def render(self, screen):
+        """
+        Renders selected menu on screen
+
+        :param screen: Pygame screen object
+        :return:
+        """
         if self.current_menu == self.MENU_LIST["Main"]:
             self._render_regular(screen)
         elif self.current_menu == self.MENU_LIST["NumPlayers"]:
             self._render_players(screen)
+        elif self.current_menu == self.MENU_LIST["Help"]:
+            self._render_regular(screen)
 
     def render_countdown(self, num, screen):
+        """
+        Specific rendering for countdown timer on game screen
+
+        :param num: Countdown timer number
+        :param screen: Pygame screen
+        :return:
+        """
         f = self.countdown_font.render(str(num), True, (100, 100, 100))
         text_rect = f.get_rect(center=(self.screen_dim[0] / 2, self.screen_dim[1]/2))
         screen.blit(f, text_rect)
@@ -76,7 +109,7 @@ class IntroSetup:
             elif self.current_selection == self.MAIN_MENU["Game setup"]:
                 self._menu_unassigned()
             elif self.current_selection == self.MAIN_MENU["Help"]:
-                self._menu_unassigned()
+                self._help_menu()
             elif self.current_selection == self.MAIN_MENU["Begin"]:
                 self._begin_game()
             elif self.current_selection == self.MAIN_MENU["Exit"]:
@@ -88,10 +121,16 @@ class IntroSetup:
             else:
                 self._change_player_type()
 
+        elif self.current_menu == self.MENU_LIST["Help"]:
+            self._apply_back()
+
     def _apply_back(self):
         if self.current_menu == self.MENU_LIST["NumPlayers"]:
             self.current_menu = self.MENU_LIST["Main"]
             self.current_selection = 0
+        elif self.current_menu == self.MENU_LIST["Help"]:
+            self.current_menu = self.MENU_LIST["Main"]
+            self.current_selection = 2
 
     def _menu_unassigned(self):
         print("Menu not yet made")
@@ -100,6 +139,10 @@ class IntroSetup:
     def _main_num_players(self):
         self.current_menu = self.MENU_LIST["NumPlayers"]
         self.current_selection = 0
+
+    def _help_menu(self):
+        self.current_menu = self.MENU_LIST["Help"]
+        self.current_selection = len(self._menu_items) - 1
 
     def _begin_game(self):
         self.start_game = True
@@ -154,6 +197,9 @@ class IntroSetup:
 
             y += 30
 
+    def _render_help(self):
+        pass
+
     @property
     def snake_parameters(self):
         return list(zip(self.player_status[0:-1], self.player_colour[0:-1]))
@@ -164,6 +210,8 @@ class IntroSetup:
             return list(self.MAIN_MENU.keys())
         elif self.current_menu == self.MENU_LIST["NumPlayers"]:
             return list(self.NUM_PLAYERS.keys())
+        elif self.current_menu == self.MENU_LIST["Help"]:
+            return list(self.HELP_MENU.keys())
 
     @property
     def _render_y_start(self):

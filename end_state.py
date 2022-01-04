@@ -1,5 +1,6 @@
 import pygame
 
+
 class EndState:
     """ Operates end state of game """
 
