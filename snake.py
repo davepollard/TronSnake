@@ -18,6 +18,7 @@ class Snake:
         # Initialise snake class
         # Inputs:
         # - id          id assigned to snake
+        # - colour      --
         # - start_pos   start position
         # - setup       game initialisation parameters
 
@@ -73,11 +74,7 @@ class Snake:
                     break
 
         if move_snake:
-            new_pos = [self.trail[-1][0] + self.current_movement[0], self.trail[-1][1] + self.current_movement[1]]
-            self.trail.append(new_pos)
-            self._check_limits()
-            if self._trail_collision():
-                self.alive = False
+            self._apply_current_movement()
 
     def render(self, screen):
         # Renders snake onto screen
@@ -91,6 +88,14 @@ class Snake:
         # Reset the snake keeping the same parameters
         self.trail = [self.initial_pos]
         self.alive = True
+
+    def _apply_current_movement(self):
+        # Add new position
+        new_pos = [self.trail[-1][0] + self.current_movement[0], self.trail[-1][1] + self.current_movement[1]]
+        self.trail.append(new_pos)
+        self._check_limits()
+        if self._trail_collision():
+            self.alive = False
 
     def _check_limits(self):
         # Within map area

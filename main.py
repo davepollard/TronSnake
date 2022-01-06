@@ -1,5 +1,6 @@
 import pygame
 from snake import Snake
+from dumb_snake import DumbSnake
 from intro_setup import IntroSetup
 from end_state import EndState
 from key_bindings import get_player_keybinding
@@ -93,9 +94,8 @@ def main():
                     if param[0] == 1:  # Human player
                         k = get_player_keybinding(i)
                         snakes.append(Snake("Player %d" % (i+1), param[1], get_snake_start(i), GAME_SETUP, k))
-                    elif param[0] == 2:  # Human player
-                        k = get_player_keybinding(param[0])
-                        snakes.append(Snake("Player %d" % (i+1), param[1], get_snake_start(i), GAME_SETUP, k))
+                    elif param[0] == 2:  # AI player
+                        snakes.append(DumbSnake("AI %d" % (i + 1), param[1], get_snake_start(i), GAME_SETUP))
 
                 # Add reference to other trails
                 for sn in snakes:
